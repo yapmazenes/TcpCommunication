@@ -1,0 +1,54 @@
+Ýlgili solution içerisinde 1 .NetFramework ve 2 .NetCore olmak üzere 2 farklý çatýda proje geliþtirilmiþtir ve her iki çatýda da ortak olarak kullanýlmasý gereken
+Class'lar mevcuttur. Bu Class'larý her 3 projedede de tekrar etmemek için Common adýnda farklý bir Class library oluþturulmuþtur. Bu library'nin
+her iki Framework'e de hizmet edebilmesi için bu library .Net Standart Library olarak seçilmiþtir.
+
+Ýçerisinde Enumlar, Request þablonu ve Helper'lar yer almaktadýr.
+BufferSizes.cs isimli enum ortak olarak TcpClient ve Server'larda ortak kullanýlan Byte buffer'larýn boyutunu temsil etmektedir.
+OperationTypes.cs isimli enum ise AND ve OR iþlemlerinin hangi portlar üzerinde yapýlacaðýný temsil etmektedir.
+Requests/Inputs.cs ise gelecek deðerlerin þablonunu tutmaktadýr.
+
+Helpers/Tcp/TcpClientHelper.cs ve TcpServerHelper.cs isimli iki helper Server'larýmýzda ve Client'larýmýzda yapýlacak iþlemleri barýndýrmaktadýr.
+Bir Tcp Serverýný dinlemek için TcpClientHelper'ýn constructure metoduna Server'ýn ipAddress'ini. 
+GetResult metoduna ise OperationTypes'ýný ve Inputs' bilgilerini vermek yeterli.
+
+
+BitConverterExtension.cs
+-Gelen bool deðiþkenini bit tipine dönüþtürür. (True:1, False:0)
+
+ObjectConverter.cs
+Kendisine verilen ToByteArray metoduna verilen Object nesnesini BinaryFormatter sýnýfýndan, MemoryStream sýnýfýnýn içerisine objeyi serilize
+eder.Ardýndan ToArray metodu ile diziye dönüþtürülür.
+
+Ayný mantýkla FromByteArray metodu ile tam tersi iþlem yapýlýr ve ByteArray'den Object nesnesine cast edilir.
+
+ServerAnd Projesi
+
+Program.cs
+
+TcpServerHelper tcpServerHelper = new TcpServerHelper(OperationTypes.AND); server sýnýfýndan bir nesne oluþturulur ve server'ýn hangi 
+portu kullanacaðý OperationTypes olarak verilir.
+
+tcpServerHelper.Start(x => x.A & x.B);  Server start edilir ve Func olarak yapýlacak iþlem þablonu verilir.
+
+ServerOr Projesi
+
+TcpServerHelper tcpServerHelper = new TcpServerHelper(OperationTypes.OR);
+
+tcpServerHelper.Start(x => x.A | x.B);  Þablon verilir
+
+Mul3 Projesi
+
+
+ TcpClientHelper tcpHelper = new TcpClientHelper("127.0.0.1");  Server'a baðlantý kurulur
+
+ GetInputs metodu ile A ve B deðiþkenleri UI 'dan elde edilir.
+
+ _btnOr_Click event'i ile Or fonksionu tetiklenir ve þu þekildedir.
+
+ gelen input içerisine;
+
+  inputs.OperationType = OperationTypes.OR; verilir.
+   
+   var result = tcpHelper.GetResult(OperationTypes.OR, inputs);  TcpHelper nesnesinden sonuç elde edilir.
+
+   SetResult(result); ile sonuç label etiketine yazdýrýlýr.
